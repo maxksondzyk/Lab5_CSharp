@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,26 +10,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TaskManager.Navigation;
 using TaskManager.Tools;
 using TaskManager.ViewModels;
 
-namespace TaskManager
+namespace TaskManager.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ThreadsView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ThreadsView : UserControl, INavigatable
     {
-        public MainWindow()
+        public ThreadsView()
         {
             InitializeComponent();
-            StationManager.Initialize();
-            DataContext = new MainWindowViewModel();
-        }
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            StationManager.CloseApp();
+            DataContext = new ThreadsViewModel();
         }
     }
 }

@@ -7,7 +7,27 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\ModulesView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\TasksView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\ThreadsView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\ModulesView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\TasksView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\ThreadsView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

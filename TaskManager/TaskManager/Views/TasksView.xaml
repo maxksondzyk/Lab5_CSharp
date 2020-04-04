@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="TaskManager.Views.TasksView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TaskManager.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="Sort">
+                <MenuItem Header="Sort by ID" Command="{Binding SortById}"></MenuItem>
+                <MenuItem Header="Sort by process name" Command="{Binding SortByName}"></MenuItem>
+                <MenuItem Header="Sort by IsActive" Command="{Binding SortByIsActive}"></MenuItem>
+                <MenuItem Header="Sort by % of CPU" Command="{Binding SortByCpu}"></MenuItem>
+                <MenuItem Header="Sort by RAM amount" Command="{Binding SortByRam}"></MenuItem>
+                <MenuItem Header="Sort by threads number" Command="{Binding SortByThreadsNumber}"></MenuItem>
+                <MenuItem Header="Sort by user" Command="{Binding SortByUser}"></MenuItem>
+                <MenuItem Header="Sort by filepath" Command="{Binding SortByFilepath}"></MenuItem>
+                <MenuItem Header="Sort by starting time" Command="{Binding SortByStartDate}"></MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Open folder" Command="{Binding OpenFolder, UpdateSourceTrigger=PropertyChanged}"></MenuItem>
+            <MenuItem Header="Show list of threads" Command="{Binding ShowThreads, UpdateSourceTrigger=PropertyChanged}"></MenuItem>
+            <MenuItem Header="Show list of modules" Command="{Binding ShowModules, UpdateSourceTrigger=PropertyChanged}"></MenuItem>
+            <MenuItem  HorizontalAlignment="Right" Margin="0 5 15 5" Header="End Task" Command="{Binding EndTask, UpdateSourceTrigger=PropertyChanged}"></MenuItem>
+        </Menu>
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding Processes, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" 
+                  AutoGenerateColumns="False" 
+                  SelectedValue="{Binding SelectedProcess, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                  ScrollViewer.CanContentScroll="True"
+                  IsReadOnly="True" CanUserSortColumns="False" SelectedIndex="0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"         Width="45"    Binding="{Binding GetId, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name"       Width="180"   Binding="{Binding GetName, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Active"     Width="50"    Binding="{Binding IsActive, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="CPU %"      Width="70"    Binding="{Binding GetCpu, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="RAM MB"     Width="Auto"  Binding="{Binding GetRam, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Threads"    Width="Auto"  Binding="{Binding GetThreadsNum, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="User"       Width="Auto"  Binding="{Binding User, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Filepath"   Width="150"  Binding="{Binding GetFilePath, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Starting time" Width="Auto"  Binding="{Binding GetStartDate, Mode=OneWay}"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

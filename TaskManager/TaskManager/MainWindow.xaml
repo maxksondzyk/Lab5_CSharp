@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:TaskManager.Views"
         xmlns:local="clr-namespace:TaskManager"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <!--<views:TasksView></views:TasksView>-->
+        <ContentControl Name="_contentControl" Content="{Binding Content, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsControlEnabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></ContentControl>
     </Grid>
 </Window>

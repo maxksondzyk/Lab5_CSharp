@@ -26,13 +26,13 @@ namespace TaskManager
         public MainWindow()
         {
             InitializeComponent();
-            StationManager.Initialize();
+            StationManager.Instance.Initialize();
             DataContext = new MainWindowViewModel();
         }
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            StationManager.CloseApp();
+            StationManager.Instance.CloseApp();
         }
     }
 }

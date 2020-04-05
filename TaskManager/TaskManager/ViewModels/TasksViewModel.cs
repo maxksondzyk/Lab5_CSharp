@@ -260,9 +260,9 @@ namespace TaskManager.ViewModels
                     SelectedProcess?.GetProcess?.Kill();
                     StationManager.Instance.DeleteProcess();
                     StationManager.Instance.i = 1;
-                    StationManager.UpdateProcessList();
+                    StationManager.Instance.UpdateProcessList();
                     SelectedProcess = null;
-                    Processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
+                    Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
                 }
                 else
                 {
@@ -276,28 +276,30 @@ namespace TaskManager.ViewModels
             {
                 try
                 {
-                    StationManager.SortingParameter = param;
+                    StationManager.Instance.SortingParameter = param;
+                    StationManager.Instance.i = 0;
+                    StationManager.Instance.SortProcessList();
+                    Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
                     StationManager.Instance.i = 1;
-                    StationManager.UpdateProcessList();
-                    Processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show("Error occurred while accessing process data");
+                    StationManager.Instance.i = 1;
                 }
             }, _token);
         }
 
         internal TasksViewModel()
         {
-            _processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
+            _processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
             _tokenSource = new CancellationTokenSource();
             _token = _tokenSource.Token;
             _workingThread = new Thread(WorkingThreadProcess);
             _workingThread.Start();
             StationManager.Instance.i = 1;
-            //  _processThread = new Thread(ProcessThreadProcess);
-            //   _processThread.Start();
+           // _processThread = new Thread(ProcessThreadProcess);
+            //_processThread.Start();
         }
 
         private void ProcessThreadProcess()
@@ -308,8 +310,7 @@ namespace TaskManager.ViewModels
                 {
                     p.Update();
                 }
-
-                Thread.Sleep(1000);
+              
                 if (_token.IsCancellationRequested)
                     break;
             }
@@ -327,8 +328,8 @@ namespace TaskManager.ViewModels
                 }
 
                 //StationManager.Instance.i = 1;
-                StationManager.UpdateProcessList();
-                Processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
+                StationManager.Instance.UpdateProcessList();
+                Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
 
                 foreach (var p in Processes)
                 {
@@ -336,7 +337,7 @@ namespace TaskManager.ViewModels
                    SelectedProcess = p;
                     break;
                 }
-              Thread.Sleep(3000);
+                Thread.Sleep(5000);
 
                 if (_token.IsCancellationRequested)
                     break;

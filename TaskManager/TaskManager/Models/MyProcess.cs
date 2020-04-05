@@ -32,7 +32,9 @@ namespace TaskManager.Models
         public bool IsActive => _process.Responding;
         public double GetCpu
         {
-            get { return _cpu; }
+            get =>
+                Math.Round((double)perfCounter.NextValue() / Environment.ProcessorCount, 1,
+                    MidpointRounding.ToEven);
             set
             {
                 _cpu = value;

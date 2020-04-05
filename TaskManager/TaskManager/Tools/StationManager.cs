@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 using TaskManager.Models;
 
 namespace TaskManager.Tools
@@ -19,7 +20,7 @@ namespace TaskManager.Tools
         #endregion
 
         #region Properties
-        internal static List<MyProcess> ProcessList
+        internal List<MyProcess> ProcessList
         {
             get => _processList;
             set => _processList = value;
@@ -33,10 +34,10 @@ namespace TaskManager.Tools
                 _selectedProcess = value;
             }
         }
-        internal static int SortingParameter { get; set; }
+        internal int SortingParameter { get; set; }
         #endregion
 
-        internal static void Initialize()
+        internal void Initialize()
         {
             Instance.i = 0;
             SortingParameter = 1;
@@ -47,19 +48,40 @@ namespace TaskManager.Tools
         {
             _processList.Remove(SelectedProcess);
         }
+       
 
-        internal static void UpdateProcessList()
+        private void clear()
         {
-            if(Instance.i!=0)
-                LoaderManager.Instance.ShowLoader();
-            _processList.Clear();
-            AddMissingProcesses();
-            SortProcessList();
+            try
+            {
+                foreach (var item in ProcessList)
+                {
+                    if (item != null)
+                    {
+                        if (!FoundTheSameInProcessSys(item.GetId))
+                            ProcessList.Remove(item);
+                    }
+                }
+            }
+            catch (Exception) { }
+
+            ;
+        }
+        internal void UpdateProcessList()
+        {
             if (Instance.i != 0)
+            {
+                LoaderManager.Instance.ShowLoader();
+                clear();
+                AddMissingProcesses();
+                SortProcessList();
                 LoaderManager.Instance.HideLoader();
+            }
         }
 
-        internal static void SortProcessList()
+       
+
+        internal void SortProcessList()
         {
             switch (SortingParameter)
             {
@@ -112,23 +134,34 @@ namespace TaskManager.Tools
             }
         }
 
-        private static void AddMissingProcesses()
+        private void AddMissingProcesses()
         {
             foreach (var item in Process.GetProcesses())
             {
                 if (item != null)
                 {
-                    //if (!FoundTheSameInProcessList(item.Id))
+                    if (!FoundTheSameInProcessList(item.Id))
                         ProcessList.Add(new MyProcess(item));
                 }
             }
         }
 
-        private static bool FoundTheSameInProcessList(int processId)
+        private bool FoundTheSameInProcessList(int processId)
         {
-            foreach (var item in _processList)
+            foreach (var item in ProcessList)
             {
                 if (processId == item.GetId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool FoundTheSameInProcessSys(int processId)
+        {
+            foreach (var item in Process.GetProcesses())
+            {
+                if (processId == item.Id)
                 {
                     return true;
                 }
@@ -138,7 +171,7 @@ namespace TaskManager.Tools
 
 
 
-        internal static void CloseApp()
+        internal void CloseApp()
         {
             StopThreads?.Invoke();
             Environment.Exit(1);

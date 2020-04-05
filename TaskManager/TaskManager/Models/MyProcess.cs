@@ -16,7 +16,7 @@ namespace TaskManager.Models
         //private readonly string _name;
         //private readonly int _id;
         //private readonly bool _isActive;
-        //private readonly float _cpu;
+        private double _cpu;
         //private readonly float _ram;
         //private readonly int _threads;
         //private readonly string _filePath;
@@ -30,7 +30,15 @@ namespace TaskManager.Models
         public string GetName => _process.ProcessName;
         public int GetId => _process.Id;
         public bool IsActive => _process.Responding;
-        public float GetCpu => perfCounter.NextValue() / Environment.ProcessorCount;
+        public double GetCpu
+        {
+            get { return _cpu; }
+            set
+            {
+                _cpu = value;
+            }
+        }
+
         public float GetRam => _process.WorkingSet64/1024/1024;
         public ProcessThreadCollection GetThreads => _process.Threads;
         public int GetThreadsNum => _process.Threads.Count;
@@ -99,7 +107,19 @@ namespace TaskManager.Models
             }
         }
         #endregion
-
+        internal void Update()
+        {
+            try
+            {
+               GetCpu =
+                    Math.Round((double)perfCounter.NextValue() / Environment.ProcessorCount, 1,
+                        MidpointRounding.ToEven);
+            }
+            catch (Exception)
+            {
+                GetCpu = 0;
+            }
+        }
         internal MyProcess(Process process)
         {
             _process = process;

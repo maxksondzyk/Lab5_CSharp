@@ -23,6 +23,7 @@ namespace TaskManager.ViewModels
         private ObservableCollection<MyModule> _modules;
         private ObservableCollection<MyProcess> _processes;
         private Thread _workingThread;
+        private Thread _processThread;
         private INavigatable _content;
         private readonly CancellationToken _token;
         private readonly CancellationTokenSource _tokenSource;
@@ -213,6 +214,7 @@ namespace TaskManager.ViewModels
         {
             try
             {
+                StationManager.Instance.i = 0;
                 Threads = new ObservableCollection<MyThread>();
                 ObservableCollection<MyThread> tmp = new ObservableCollection<MyThread>();
                 int id = SelectedProcess.GetId;
@@ -233,6 +235,7 @@ namespace TaskManager.ViewModels
         {
             try
             {
+                StationManager.Instance.i = 0;
                 Modules = new ObservableCollection<MyModule>();
                 ObservableCollection<MyModule> tmp = new ObservableCollection<MyModule>();
                 int id = SelectedProcess.GetId;
@@ -256,6 +259,7 @@ namespace TaskManager.ViewModels
                 {
                     SelectedProcess?.GetProcess?.Kill();
                     StationManager.Instance.DeleteProcess();
+                    StationManager.Instance.i = 1;
                     StationManager.UpdateProcessList();
                     SelectedProcess = null;
                     Processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
@@ -273,6 +277,7 @@ namespace TaskManager.ViewModels
                 try
                 {
                     StationManager.SortingParameter = param;
+                    StationManager.Instance.i = 1;
                     StationManager.UpdateProcessList();
                     Processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
                 }
@@ -290,6 +295,25 @@ namespace TaskManager.ViewModels
             _token = _tokenSource.Token;
             _workingThread = new Thread(WorkingThreadProcess);
             _workingThread.Start();
+            StationManager.Instance.i = 1;
+            //  _processThread = new Thread(ProcessThreadProcess);
+            //   _processThread.Start();
+        }
+
+        private void ProcessThreadProcess()
+        {
+            while (!_token.IsCancellationRequested)
+            {
+                foreach (var p in Processes)
+                {
+                    p.Update();
+                }
+
+                Thread.Sleep(1000);
+                if (_token.IsCancellationRequested)
+                    break;
+            }
+            StationManager.StopThreads += StopWorkingThread;
         }
         private void WorkingThreadProcess()
         {
@@ -302,18 +326,17 @@ namespace TaskManager.ViewModels
                     temp = SelectedProcess.GetId;
                 }
 
+                //StationManager.Instance.i = 1;
                 StationManager.UpdateProcessList();
-
                 Processes = new ObservableCollection<MyProcess>(StationManager.ProcessList);
 
                 foreach (var p in Processes)
                 {
-                    if (p.GetId == temp)
-                    {
-                        SelectedProcess = p;
-                        break;
-                    }
+                    if (p.GetId != temp) continue;
+                   SelectedProcess = p;
+                    break;
                 }
+              Thread.Sleep(3000);
 
                 if (_token.IsCancellationRequested)
                     break;

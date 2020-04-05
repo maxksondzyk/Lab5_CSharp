@@ -12,6 +12,7 @@ namespace TaskManager.Tools
     {
         private static StationManager _instance;
         private MyProcess _selectedProcess;
+        internal int i;
         #region Fields
         public static event Action StopThreads;
         private static List<MyProcess> _processList;
@@ -37,9 +38,9 @@ namespace TaskManager.Tools
 
         internal static void Initialize()
         {
+            Instance.i = 0;
             SortingParameter = 1;
             ProcessList = new List<MyProcess>();
-            UpdateProcessList();
         }
 
         internal void DeleteProcess()
@@ -49,9 +50,13 @@ namespace TaskManager.Tools
 
         internal static void UpdateProcessList()
         {
+            if(Instance.i!=0)
+                LoaderManager.Instance.ShowLoader();
             _processList.Clear();
             AddMissingProcesses();
             SortProcessList();
+            if (Instance.i != 0)
+                LoaderManager.Instance.HideLoader();
         }
 
         internal static void SortProcessList()
@@ -135,7 +140,6 @@ namespace TaskManager.Tools
 
         internal static void CloseApp()
         {
-            MessageBox.Show("Shutting Down");
             StopThreads?.Invoke();
             Environment.Exit(1);
         }

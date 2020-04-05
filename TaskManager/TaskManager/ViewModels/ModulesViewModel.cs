@@ -44,6 +44,7 @@ namespace TaskManager.ViewModels
         private void ReturnImplementation(object obj)
         {
             NavigationManager.Instance.Navigate(ViewType.Tasks);
+            StationManager.Instance.i = 1;
         }
 
         public Action CloseAction { get; set; }

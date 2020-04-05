@@ -77,7 +77,7 @@ namespace TaskManager.Models
             try
             {
                 _perfCounter = new PerformanceCounter("Process", "% Processor Time", GetName, true);
-                _perfCounter.NextValue();
+              //  _perfCounter.NextValue();
                 GetRam = process.WorkingSet64/1024/1024;
                 GetStartDate = GetProcess.StartTime.ToString("HH:mm:ss dd/MM/yyyy");
                 OpenProcessToken(GetProcess.Handle, 8, out processHandle);

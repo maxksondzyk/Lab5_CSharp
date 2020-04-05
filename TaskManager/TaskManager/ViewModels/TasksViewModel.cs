@@ -19,7 +19,8 @@ namespace TaskManager.ViewModels
         private ObservableCollection<MyThread> _threads;
         private ObservableCollection<MyModule> _modules;
         private ObservableCollection<MyProcess> _processes;
-        private Thread _workingThread;
+        private Thread _mainThread;
+        private Thread _processThread;
         private readonly CancellationToken _token;
         private readonly CancellationTokenSource _tokenSource;
 
@@ -282,10 +283,10 @@ namespace TaskManager.ViewModels
             _processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
             _tokenSource = new CancellationTokenSource();
             _token = _tokenSource.Token;
-            _workingThread = new Thread(WorkingThreadProcess);
-            _workingThread.Start();
-            var processThread = new Thread(ProcessThreadProcess);
-            processThread.Start();
+            _mainThread = new Thread(MainThreadProcess);
+            _mainThread.Start();
+            _processThread = new Thread(ProcessThreadProcess);
+            _processThread.Start();
         }
 
         private void ProcessThreadProcess()
@@ -299,27 +300,37 @@ namespace TaskManager.ViewModels
                 if (_token.IsCancellationRequested)
                     break;
             }
-            StationManager.StopThreads += StopWorkingThread;
+            StationManager.StopThreads += StopProcessThread;
         }
-        private void WorkingThreadProcess()
+        private void MainThreadProcess()
         {
 
             while (!_token.IsCancellationRequested)
             {
                 StationManager.Instance.UpdateProcessList();
                 Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
+                Thread.Sleep(4000);
                 StationManager.Instance.I = 1;
                 if (_token.IsCancellationRequested)
                     break;
             }
-            StationManager.StopThreads += StopWorkingThread;
+            StationManager.StopThreads += StopMainThread;
         }
-        internal void StopWorkingThread()
+        internal void StopProcessThread()
         {
             _tokenSource.Cancel();
-            _workingThread.Join(1000);
-            _workingThread.Abort();
-            _workingThread = null;
+            _processThread.Join(1000);
+            _processThread.Abort();
+            _processThread = null;
+
+        }
+        internal void StopMainThread()
+        {
+            _tokenSource.Cancel();
+            _mainThread.Join(1000);
+            _mainThread.Abort();
+            _mainThread = null;
+
         }
 
         private bool CanExecuteCommand()

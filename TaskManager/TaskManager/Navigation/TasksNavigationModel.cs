@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using TaskManager.Views;
 
 namespace TaskManager.Navigation
 {
     internal class TasksNavigationModel : BaseNavigationModel
     {
-        public TasksNavigationModel(IContentOwner contentOwner) : base(contentOwner)
+        internal TasksNavigationModel(IContentOwner contentOwner) : base(contentOwner)
         {
 
         }

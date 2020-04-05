@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using TaskManager.Navigation;
 
 namespace TaskManager.Navigation
 {
@@ -31,8 +30,6 @@ namespace TaskManager.Navigation
                 InitializeView(viewType);
             }
 
-           
-           
             _contentOwner.Content = _viewsDictionary[viewType];
         }
 

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 
 namespace TaskManager.Tools
 {
-    interface ILoaderOwner
+    internal interface ILoaderOwner
     {
-        Visibility LoaderVisibility { get; set; }
-        bool IsControlEnabled { get; set; }
+        public Visibility LoaderVisibility { get; set; }
+        public bool IsControlEnabled { get; set; }
     }
 }

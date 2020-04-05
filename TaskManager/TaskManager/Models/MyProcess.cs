@@ -1,140 +1,118 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Text;
-using System.Windows;
+using TaskManager.Annotations;
 
 namespace TaskManager.Models
 {
-    internal class MyProcess
+    internal class MyProcess: INotifyPropertyChanged
     {
         #region Fields
-
-        private readonly Process _process;
-        //private readonly string _name;
-        //private readonly int _id;
-        //private readonly bool _isActive;
+        private readonly PerformanceCounter _perfCounter;
         private double _cpu;
-        //private readonly float _ram;
-        //private readonly int _threads;
-        //private readonly string _filePath;
-        //private readonly DateTime _startDate;
-        private PerformanceCounter perfCounter;
+        private float _ram;
+
         #endregion
 
         #region Properties
 
-        public Process GetProcess => _process;
-        public string GetName => _process.ProcessName;
-        public int GetId => _process.Id;
-        public bool IsActive => _process.Responding;
+        public Process GetProcess { get ; set; }
+
+        public string GetName => GetProcess.ProcessName;
+        public int GetId => GetProcess.Id;
+        public bool IsActive => GetProcess.Responding;
+
         public double GetCpu
         {
-            get =>
-                Math.Round((double)perfCounter.NextValue() / Environment.ProcessorCount, 1,
-                    MidpointRounding.ToEven);
-            set
-            {
-                _cpu = value;
-            }
+            get => _cpu;
+            set { _cpu = value; OnPropertyChanged(); }
         }
 
-        public float GetRam => _process.WorkingSet64/1024/1024;
-        public ProcessThreadCollection GetThreads => _process.Threads;
-        public int GetThreadsNum => _process.Threads.Count;
-
-        public ProcessModuleCollection Modules => _process.Modules;
-
-        public ProcessThreadCollection ThreadsCollection => _process.Threads;
-
-        public string GetFilePath
+        public float GetRam
         {
-            get
-            {
-                try
-                {
-                    return _process.MainModule.FileName;
-                }
-                catch (Exception)
-                {
-                    return "Access denied";
-                }
-            }
+            get => _ram;
+            set { _ram = value; OnPropertyChanged(); }
         }
 
-        public string GetStartDate
-        {
-            get
-            {
-                try
-                {
-                    return _process.StartTime.ToString("HH:mm:ss dd/MM/yyyy");
-                }
-                catch (Exception e)
-                {
-                    return "Access denied";
-                }
-            }
-        }
+        public ProcessThreadCollection Threads => GetProcess.Threads;
+        public int GetThreadsNum => GetProcess.Threads.Count;
+
+        public ProcessModuleCollection Modules => GetProcess.Modules;
+
+        public ProcessThreadCollection ThreadsCollection => GetProcess.Threads;
+
+        public string GetFilePath { get; set; }
+
+        public string GetStartDate { get; set; }
+
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr hObject);
 
-        public string User
-        {
-            get
-            {
-                IntPtr processHandle = IntPtr.Zero;
-                try
-                {
-                    OpenProcessToken(_process.Handle, 8, out processHandle);
-                    WindowsIdentity wi = new WindowsIdentity(processHandle);
-                    string user = wi.Name;
-                    return user.Contains(@"\") ? user.Substring(user.IndexOf(@"\") + 1) : user;
-                }
-                catch
-                {
-                    return null;
-                }
-                finally
-                {
-                    if (processHandle != IntPtr.Zero)
-                    {
-                        CloseHandle(processHandle);
-                    }
-                }
-            }
-        }
+        public string User { get; set; }
+
         #endregion
+
         internal void Update()
         {
             try
             {
-               GetCpu =
-                    Math.Round((double)perfCounter.NextValue() / Environment.ProcessorCount, 1,
-                        MidpointRounding.ToEven);
+                GetCpu = _perfCounter.NextValue() / Environment.ProcessorCount;
             }
-            catch (Exception)
+            catch
             {
                 GetCpu = 0;
             }
         }
         internal MyProcess(Process process)
         {
-            _process = process;
-            perfCounter = new PerformanceCounter("Process", "% Processor Time", "chrome");
-            perfCounter.NextValue();
-        }
-        public bool checkAvailability()
-        {
-            if (GetStartDate == "Access denied")
+            GetProcess = process;
+
+            var processHandle = IntPtr.Zero;
+            
+            try
             {
-                return false;
+                _perfCounter = new PerformanceCounter("Process", "% Processor Time", GetName, true);
+                _perfCounter.NextValue();
+                GetRam = process.WorkingSet64/1024/1024;
+                GetStartDate = GetProcess.StartTime.ToString("HH:mm:ss dd/MM/yyyy");
+                OpenProcessToken(GetProcess.Handle, 8, out processHandle);
+                var wi = new WindowsIdentity(processHandle);
+                var user = wi.Name;
+                User = user.Contains(@"\") ? user.Substring(user.IndexOf(@"\") + 1) : user;
+                GetFilePath = GetProcess.MainModule.FileName;
+                
             }
-            return true;
+            catch
+            {
+                GetFilePath = "Access denied";
+                User = null;
+                GetStartDate = "Access denied";
+            }
+            finally
+            {
+                if (processHandle != IntPtr.Zero)
+                {
+                    CloseHandle(processHandle);
+                }
+            }
+        }
+
+        public bool CheckAvailability()
+        {
+            return GetStartDate != "Access denied";
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

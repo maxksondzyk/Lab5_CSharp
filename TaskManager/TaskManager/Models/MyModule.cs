@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace TaskManager.Models
 {
@@ -13,10 +11,7 @@ namespace TaskManager.Models
 
         #endregion
 
-        public string Name
-        {
-            get { return _module.ModuleName; }
-        }
+        public string Name => _module.ModuleName;
 
         public string Filepath
         {
@@ -27,7 +22,7 @@ namespace TaskManager.Models
                 {
                     return _module.FileName;
                 }
-                catch (Exception e) //because of security
+                catch (Exception)
                 {
                     return "Access denied";
                 }

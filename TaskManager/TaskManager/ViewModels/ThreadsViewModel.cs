@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Text;
 using TaskManager.Models;
 using TaskManager.Navigation;
 using TaskManager.Tools;
@@ -21,12 +18,7 @@ namespace TaskManager.ViewModels
         }
         public ObservableCollection<MyThread> Threads
         {
-            get
-            {
-
-                return _threads;
-
-            }
+            get => _threads;
             private set
             {
                 _threads = value;
@@ -42,18 +34,15 @@ namespace TaskManager.ViewModels
             }
         }
 
-        private void ReturnImplementation(object obj)
+        private static void ReturnImplementation(object obj)
         {
             NavigationManager.Instance.Navigate(ViewType.Tasks);
-            StationManager.Instance.i = 1;
         }
-        public Action CloseAction { get; set; }
 
         internal ThreadsViewModel()
         {
             Threads = new ObservableCollection<MyThread>();
-            ObservableCollection<MyThread> tmp = new ObservableCollection<MyThread>();
-            int id = StationManager.Instance.SelectedProcess.GetId;
+            var tmp = new ObservableCollection<MyThread>();
             foreach (ProcessThread thread in StationManager.Instance.SelectedProcess.ThreadsCollection)
             {
                 tmp.Add(new MyThread(thread));

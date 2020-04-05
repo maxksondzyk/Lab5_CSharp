@@ -7,7 +7,7 @@
         Threads = 2,
     }
 
-    interface INavigationModel
+    internal interface INavigationModel
     {
         void Navigate(ViewType viewType);
     }

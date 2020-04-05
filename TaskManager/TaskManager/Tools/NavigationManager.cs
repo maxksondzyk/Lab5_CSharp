@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TaskManager.Navigation;
+﻿using TaskManager.Navigation;
 
 namespace TaskManager.Tools
 {

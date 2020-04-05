@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Xml.Serialization;
 using TaskManager.Models;
 using TaskManager.Navigation;
 using TaskManager.Tools;
@@ -18,13 +15,11 @@ namespace TaskManager.ViewModels
     internal class TasksViewModel : BaseViewModel, INotifyPropertyChanged
     {
         #region Fields
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
         private ObservableCollection<MyThread> _threads;
         private ObservableCollection<MyModule> _modules;
         private ObservableCollection<MyProcess> _processes;
         private Thread _workingThread;
-        private Thread _processThread;
-        private INavigatable _content;
         private readonly CancellationToken _token;
         private readonly CancellationTokenSource _tokenSource;
 
@@ -90,7 +85,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortById ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 0));
+                    SortImplementation(0));
             }
         }
         public RelayCommand<object> SortByName
@@ -98,7 +93,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByName ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 1));
+                    SortImplementation(1));
             }
         }
         public RelayCommand<object> SortByIsActive
@@ -106,7 +101,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByIsActive ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 2));
+                    SortImplementation(2));
             }
         }
         public RelayCommand<object> SortByCpu
@@ -114,7 +109,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByCpu ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 3));
+                    SortImplementation(3));
             }
         }
         public RelayCommand<object> SortByRam
@@ -122,7 +117,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByRam ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 4));
+                    SortImplementation(4));
             }
         }
         public RelayCommand<object> SortByThreadsNumber
@@ -130,7 +125,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByThreadsNumber ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 5));
+                    SortImplementation(5));
             }
         }
         public RelayCommand<object> SortByUser
@@ -138,7 +133,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByUser ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 6));
+                    SortImplementation(6));
             }
         }
         public RelayCommand<object> SortByFilepath
@@ -146,7 +141,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByFilepath ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 7));
+                    SortImplementation(7));
             }
         }
         public RelayCommand<object> SortByStartDate
@@ -154,7 +149,7 @@ namespace TaskManager.ViewModels
             get
             {
                 return _sortByStartDate ??= new RelayCommand<object>(o =>
-                    SortImplementation(o, 8));
+                    SortImplementation(8));
             }
         }
         public RelayCommand<object> ShowThreads
@@ -205,7 +200,7 @@ namespace TaskManager.ViewModels
                     SelectedProcess.GetFilePath.Substring(0,
                         SelectedProcess.GetFilePath.LastIndexOf("\\", StringComparison.Ordinal)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Error while accessing processing data");
             }
@@ -214,10 +209,8 @@ namespace TaskManager.ViewModels
         {
             try
             {
-                StationManager.Instance.i = 0;
                 Threads = new ObservableCollection<MyThread>();
-                ObservableCollection<MyThread> tmp = new ObservableCollection<MyThread>();
-                int id = SelectedProcess.GetId;
+                var tmp = new ObservableCollection<MyThread>();
                 foreach (ProcessThread thread in SelectedProcess.ThreadsCollection)
                 {
                     tmp.Add(new MyThread(thread));
@@ -226,7 +219,7 @@ namespace TaskManager.ViewModels
                 Threads = tmp;
                 NavigationManager.Instance.Navigate(ViewType.Threads);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Access Denied");
             }
@@ -235,10 +228,8 @@ namespace TaskManager.ViewModels
         {
             try
             {
-                StationManager.Instance.i = 0;
                 Modules = new ObservableCollection<MyModule>();
-                ObservableCollection<MyModule> tmp = new ObservableCollection<MyModule>();
-                int id = SelectedProcess.GetId;
+                var tmp = new ObservableCollection<MyModule>();
                 foreach (ProcessModule module in SelectedProcess.Modules)
                 {
                     tmp.Add(new MyModule(module));
@@ -247,7 +238,7 @@ namespace TaskManager.ViewModels
                 Modules = tmp;
                 NavigationManager.Instance.Navigate(ViewType.Modules);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Access Denied");
             }
@@ -255,11 +246,10 @@ namespace TaskManager.ViewModels
         private async void EndTaskImplementation(object obj)
         {
             await Task.Run(() => {
-                if (SelectedProcess.checkAvailability())
+                if (SelectedProcess.CheckAvailability())
                 {
                     SelectedProcess?.GetProcess?.Kill();
                     StationManager.Instance.DeleteProcess();
-                    StationManager.Instance.i = 1;
                     StationManager.Instance.UpdateProcessList();
                     SelectedProcess = null;
                     Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
@@ -270,22 +260,19 @@ namespace TaskManager.ViewModels
                 }
             }, _token);
         }
-        private async void SortImplementation(object obj, int param)
+        private async void SortImplementation(int param)
         {
             await Task.Run(() =>
             {
                 try
                 {
                     StationManager.Instance.SortingParameter = param;
-                    StationManager.Instance.i = 0;
                     StationManager.Instance.SortProcessList();
                     Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
-                    StationManager.Instance.i = 1;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     MessageBox.Show("Error occurred while accessing process data");
-                    StationManager.Instance.i = 1;
                 }
             }, _token);
         }
@@ -297,20 +284,18 @@ namespace TaskManager.ViewModels
             _token = _tokenSource.Token;
             _workingThread = new Thread(WorkingThreadProcess);
             _workingThread.Start();
-            StationManager.Instance.i = 1;
-           // _processThread = new Thread(ProcessThreadProcess);
-            //_processThread.Start();
+            var processThread = new Thread(ProcessThreadProcess);
+            processThread.Start();
         }
 
         private void ProcessThreadProcess()
         {
             while (!_token.IsCancellationRequested)
             {
-                foreach (var p in Processes)
+                foreach (var item in Processes)
                 {
-                    p.Update();
+                    item.Update();
                 }
-              
                 if (_token.IsCancellationRequested)
                     break;
             }
@@ -321,24 +306,9 @@ namespace TaskManager.ViewModels
 
             while (!_token.IsCancellationRequested)
             {
-                var temp = -1;
-                if (SelectedProcess != null)
-                {
-                    temp = SelectedProcess.GetId;
-                }
-
-                //StationManager.Instance.i = 1;
                 StationManager.Instance.UpdateProcessList();
                 Processes = new ObservableCollection<MyProcess>(StationManager.Instance.ProcessList);
-
-                foreach (var p in Processes)
-                {
-                    if (p.GetId != temp) continue;
-                   SelectedProcess = p;
-                    break;
-                }
-                Thread.Sleep(5000);
-
+                StationManager.Instance.I = 1;
                 if (_token.IsCancellationRequested)
                     break;
             }
@@ -356,18 +326,8 @@ namespace TaskManager.ViewModels
         {
             return SelectedProcess != null;
         }
-       
-        public INavigatable Content
-        {
-            get => _content;
-            set
-            {
-                _content = value;
-                OnPropertyChanged();
-            }
-        }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

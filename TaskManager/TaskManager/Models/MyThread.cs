@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace TaskManager.Models
 {
@@ -13,21 +11,9 @@ namespace TaskManager.Models
 
         #endregion
 
-        public int Id
-        {
-            get { return _thread.Id; }
-        }
+        public int Id => _thread.Id;
 
-        public ThreadState State
-        {
-
-            get
-            {
-                return _thread.ThreadState;
-
-            }
-
-        }
+        public ThreadState State => _thread.ThreadState;
 
         public string StartingTime
         {
@@ -35,9 +21,9 @@ namespace TaskManager.Models
             {
                 try
                 {
-                    return _thread.StartTime.ToString("HH:mm:ss dd/MM/yyyy"); ;
+                    return _thread.StartTime.ToString("HH:mm:ss dd/MM/yyyy");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     return "Access denied";
                 }
